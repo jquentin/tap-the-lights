@@ -129,4 +129,9 @@ public class ScoreScreenController : MonoBehaviour {
 		Launch();
 	}
 
+	public void ShareOnFacebook()
+	{
+		FacebookManager.instance.PostFacebook(finalScore);
+	}
+
 }
