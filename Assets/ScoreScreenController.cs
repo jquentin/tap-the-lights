@@ -15,11 +15,14 @@ public class ScoreScreenController : MonoBehaviour {
 		}
 	}
 
+
+	public UIWidget scoreScreenWidget;
 	public UILabel scoreTitleLabel;
 	public UILabel scoreLabel;
 	public UILabel bestScoreTitleLabel;
 	public UILabel bestScoreLabel;
 	public float speedMultiplier = 4f;
+	public float transitionTime = 0.3f;
 
 	public GameObject skipButton;
 	public GameObject restartButton;
@@ -54,12 +57,15 @@ public class ScoreScreenController : MonoBehaviour {
 
 	void Start()
 	{
-		camera.rect = new Rect(0f, 0f, 0f, 0f);
+		UpdateViewport(0f);
+//		camera.rect = new Rect(0f, -1f, 0f, 1f);
 	}
 
 	void UpdateViewport(float height)
 	{
-		camera.rect = new Rect(0f, 0f, 1f, height);
+		scoreScreenWidget.topAnchor.relative = height;
+		scoreScreenWidget.bottomAnchor.relative = -1f + height;
+//		camera.rect = new Rect(0f, -1f + height, 1f, 1f);
 	}
 
 	public void Play (int score, List<SavedNote> savedNotes, Color losingColor, Color bgColor) 
@@ -78,7 +84,7 @@ public class ScoreScreenController : MonoBehaviour {
 		iTween.ValueTo(gameObject, iTween.Hash(
 			"from", 0f,
 			"to", 1f,
-			"time", 0.5f,
+			"time", transitionTime,
 			"onupdate", "UpdateViewport"));
 
 		Launch(0.5f);
@@ -112,7 +118,7 @@ public class ScoreScreenController : MonoBehaviour {
 		iTween.ValueTo(gameObject, iTween.Hash(
 			"from", 1f,
 			"to", 0f,
-			"time", 0.5f,
+			"time", transitionTime,
 			"onupdate", "UpdateViewport"));
 		PadController.instance.Init ();
 	}
