@@ -24,12 +24,12 @@ public class ColorPalette
 	public void InitFromHex()
 	{
 		padColors = new List<Color>();
-		Color.TryParseHexString(hex, out bgColor);
+		ColorUtility.TryParseHtmlString(hex, out bgColor);
 		for (int i= 0 ; i < padHexs.Count ; i++)
 		{
 			padColors.Add(new Color());
 			Color padColor = padColors[i];
-			Color.TryParseHexString(padHexs[i], out padColor);
+			ColorUtility.TryParseHtmlString(padHexs[i], out padColor);
 			padColors[i] = padColor;
 		}
 	}
