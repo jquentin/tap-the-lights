@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,6 +6,8 @@ using System.Collections.Generic;
 [Serializable]
 public class Instrument
 {
+	public string name;
+	public float volume = 1f;
 	public List<AudioClip> notes;
 }
 
@@ -24,12 +26,20 @@ public class ColorPalette
 	public void InitFromHex()
 	{
 		padColors = new List<Color>();
+#if UNITY_5_2
 		ColorUtility.TryParseHtmlString(hex, out bgColor);
+#else
+		Color.TryParseHexString(hex, out bgColor);
+#endif
 		for (int i= 0 ; i < padHexs.Count ; i++)
 		{
 			padColors.Add(new Color());
 			Color padColor = padColors[i];
+#if UNITY_5_2
 			ColorUtility.TryParseHtmlString(padHexs[i], out padColor);
+#else
+			Color.TryParseHexString(padHexs[i], out padColor);
+#endif
 			padColors[i] = padColor;
 		}
 	}
@@ -80,6 +90,17 @@ public class PadController : MonoBehaviour {
 			if (_source == null)
 				_source = gameObject.AddComponent<AudioSource>();
 			return _source;
+		}
+	}
+	
+	private AudioListener _listener;
+	public AudioListener listener
+	{
+		get
+		{
+			if (_listener == null)
+				_listener = camera.GetComponent<AudioListener>();
+			return _listener;
 		}
 	}
 
@@ -133,6 +154,7 @@ public class PadController : MonoBehaviour {
 
 	void Start () 
 	{
+		AudioSettings.SetDSPBufferSize(128, 2);
 		Init();
 	}
 
@@ -153,6 +175,7 @@ public class PadController : MonoBehaviour {
 		{
 			pads[i].index = i;
 			pads[i].unfireSound = instruments[instrumentIndex].notes[i];
+			pads[i].unfireSoundVolume = instruments[instrumentIndex].volume;
 			pads[i].colorPalette = palettes[paletteIndex];
 			pads[i].Init();
 			pads[i].OnUnfire += OnTabUnfired;
@@ -208,7 +231,7 @@ public class PadController : MonoBehaviour {
 
 	void ShowScoreScreen()
 	{
-		ScoreScreenController.instance.Play(score, savedNotes, deadColor, palettes[paletteIndex].bgColor);
+		ScoreScreenController.instance.Play(score, savedNotes, palettes[paletteIndex].padColors[0], palettes[paletteIndex].bgColor);
 	}
 
 	void UpdateDifficulty()
@@ -240,6 +263,7 @@ public class PadController : MonoBehaviour {
 		int padToFire = -1;
 		if (lastPadFired > -1)
 		{
+			// Choose the second pad in all pads except the first one the two around
 			padToFire = UnityEngine.Random.Range(0, pads.Count - 1);
 			if (padToFire >= lastPadFired)
 				padToFire++;
@@ -250,17 +274,19 @@ public class PadController : MonoBehaviour {
 		int padToFire2 = 0;
 		if (fireTwo)
 		{
-			padToFire2 = UnityEngine.Random.Range(0, pads.Count - 1);
-			if (padToFire2 >= padToFire)
-				padToFire2++;
+			// Choose the second pad in all pads except the first one  and the two around
+			padToFire2 = UnityEngine.Random.Range(0, pads.Count - 3);
+			if (padToFire2 >= padToFire - 1)
+				padToFire2 += 3;
 			pads[padToFire2].Fire();
 			if (fireThree)
 			{
-				int padToFire3 = UnityEngine.Random.Range(0, pads.Count - 2);
-				if (padToFire3 >= padToFire)
-					padToFire3++;
-				if (padToFire3 >= padToFire2)
-					padToFire3++;
+				// Choose the third pad in all pads except the first one and the two around and the second and the two around
+				int padToFire3 = UnityEngine.Random.Range(0, pads.Count - 6);
+				if (padToFire3 >= Mathf.Min(padToFire, padToFire2) - 1)
+					padToFire3 += 3;
+				if (padToFire3 >= Mathf.Max(padToFire, padToFire2) - 1)
+					padToFire3 += 3;
 				pads[padToFire3].Fire();
 			}
 		}

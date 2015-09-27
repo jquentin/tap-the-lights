@@ -5,7 +5,20 @@ public class Pad : MonoBehaviour {
 
 	public GameObject fireObject;
 	public Texture fireTexture;
-	public AudioClip unfireSound;
+	public AudioClip unfireSound
+	{
+		set
+		{
+			source.clip = value;
+		}
+	}
+	public float unfireSoundVolume
+	{
+		set
+		{
+			source.volume = value;
+		}
+	}
 	public ColorPalette colorPalette;
 	public int index { private get; set; }
 	private AudioSource _source;
@@ -73,7 +86,7 @@ public class Pad : MonoBehaviour {
 		{
 			CancelInvoke("TooLate");
 			fireObject.SetActive(false);
-			source.PlayOneShot(unfireSound);
+			source.Play();
 			if (OnUnfire != null)
 				OnUnfire(index);
 			fired = false;
