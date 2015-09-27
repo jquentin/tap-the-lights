@@ -92,6 +92,8 @@ public class ScoreScreenController : MonoBehaviour {
 
 	void Launch(float delay = 0f)
 	{
+//		float[] data = new float[1024];
+//		AudioListener.GetOutputData(data, 4);
 		currentScore = 0;
 		UpdateScoreLabel();
 		foreach(SavedNote note in savedNotes)
