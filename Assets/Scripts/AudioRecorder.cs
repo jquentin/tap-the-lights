@@ -56,7 +56,7 @@ public class AudioRecorder : MonoBehaviour
 		AudioSettings.GetDSPBufferSize(out bufferSize, out numBuffers);
 //		FileStream fs = File.OpenRead(fileName + "_" + (indexFile - 1) + ".wav");
 //		print (fs);
-		StartCoroutine(loadFile(fileName + "_" + (indexFile - 1) + ".wav"));
+//		StartCoroutine(loadFile(fileName + "_" + (indexFile - 1) + ".wav"));
 	}
 
 	public void StartRecording()
