@@ -155,6 +155,18 @@ public class PadController : MonoBehaviour {
 	void Start () 
 	{
 		AudioSettings.SetDSPBufferSize(128, 2);
+		print(Social.Active);
+		Social.localUser.Authenticate(delegate(bool success) {
+			if (success) {
+				Debug.Log ("Authentication successful");
+				string userInfo = "Username: " + Social.localUser.userName + 
+					"\nUser ID: " + Social.localUser.id + 
+						"\nIsUnderage: " + Social.localUser.underage;
+				Debug.Log (userInfo);
+			}
+			else
+				Debug.Log ("Authentication failed");
+		});
 		Init();
 	}
 
@@ -183,7 +195,7 @@ public class PadController : MonoBehaviour {
 		}
 		camera.backgroundColor = palettes[paletteIndex].bgColor;
 		playbutton.SetActive(false);
-		pausebutton.SetActive(true);
+		pausebutton.SetActive(false);
 	}
 	
 
@@ -198,6 +210,7 @@ public class PadController : MonoBehaviour {
 
 	void OnTabUnfired(int index)
 	{
+		pausebutton.SetActive(true);
 		UntriggerTuto();
 		score++;
 		UpdateDifficulty();
@@ -213,6 +226,8 @@ public class PadController : MonoBehaviour {
 			pads[i].OnUnfire -= OnTabUnfired;
 			pads[i].OnDie -= OnDie;
 		}
+		if (Social.localUser.authenticated)
+			Social.ReportScore(score, "Score", null);
 		StartCoroutine(DieCoroutine());
 		playbutton.SetActive(false);
 		pausebutton.SetActive(false);

@@ -141,5 +141,10 @@ public class ScoreScreenController : MonoBehaviour {
 	{
 		FacebookManager.instance.PostFacebook(finalScore);
 	}
+	
+	public void ShowGameCenter()
+	{
+		Social.ShowLeaderboardUI();
+	}
 
 }
