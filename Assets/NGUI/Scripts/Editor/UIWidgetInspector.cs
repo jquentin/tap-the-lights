@@ -904,6 +904,8 @@ public class UIWidgetInspector : UIRectEditor
 					GUILayout.Label("auto-adjust to match");
 				}
 				GUILayout.EndHorizontal();
+				if (w.autoResizeBoxCollider)
+					NGUIEditorTools.DrawProperty("Multiplier", so, "autoResizeBoxColliderMultiplier", GUILayout.Width(100f));
 			}
 			NGUIEditorTools.EndContents();
 		}

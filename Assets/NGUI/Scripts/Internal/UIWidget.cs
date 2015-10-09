@@ -56,6 +56,12 @@ public class UIWidget : UIRect
 	public bool autoResizeBoxCollider = false;
 
 	/// <summary>
+	/// the box collider's dimensions will be adjusted to always match the widget, scaled by this factor, for easier tap.
+	/// </summary>
+	
+	public float autoResizeBoxColliderMultiplier = 1f;
+
+	/// <summary>
 	/// Hide the widget if it happens to be off-screen.
 	/// </summary>
 
@@ -748,7 +754,7 @@ public class UIWidget : UIRect
 	/// Adjust the widget's collider size to match the widget's dimensions.
 	/// </summary>
 
-	public void ResizeCollider () { if (NGUITools.GetActive(this)) NGUITools.UpdateWidgetCollider(gameObject); }
+	public void ResizeCollider () { if (NGUITools.GetActive(this)) NGUITools.UpdateWidgetCollider(gameObject, autoResizeBoxColliderMultiplier); }
 
 	/// <summary>
 	/// Static widget comparison function used for depth sorting.

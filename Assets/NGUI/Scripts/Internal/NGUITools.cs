@@ -297,16 +297,16 @@ static public class NGUITools
 	/// Adjust the widget's collider based on the depth of the widgets, as well as the widget's dimensions.
 	/// </summary>
 
-	static public void UpdateWidgetCollider (GameObject go)
+	static public void UpdateWidgetCollider (GameObject go, float multiplier = 1f)
 	{
-		UpdateWidgetCollider(go, false);
+		UpdateWidgetCollider(go, false, multiplier);
 	}
 
 	/// <summary>
 	/// Adjust the widget's collider based on the depth of the widgets, as well as the widget's dimensions.
 	/// </summary>
 
-	static public void UpdateWidgetCollider (GameObject go, bool considerInactive)
+	static public void UpdateWidgetCollider (GameObject go, bool considerInactive, float multiplier = 1f)
 	{
 		if (go != null)
 		{
@@ -314,11 +314,11 @@ static public class NGUITools
 
 			if (bc != null)
 			{
-				UpdateWidgetCollider(bc, considerInactive);
+				UpdateWidgetCollider(bc, considerInactive, multiplier);
 				return;
 			}
 			BoxCollider2D box2 = go.GetComponent<BoxCollider2D>();
-			if (box2 != null) UpdateWidgetCollider(box2, considerInactive);
+			if (box2 != null) UpdateWidgetCollider(box2, considerInactive, multiplier);
 		}
 	}
 
@@ -326,7 +326,7 @@ static public class NGUITools
 	/// Adjust the widget's collider based on the depth of the widgets, as well as the widget's dimensions.
 	/// </summary>
 
-	static public void UpdateWidgetCollider (BoxCollider box, bool considerInactive)
+	static public void UpdateWidgetCollider (BoxCollider box, bool considerInactive, float multiplier = 1f)
 	{
 		if (box != null)
 		{
@@ -341,20 +341,20 @@ static public class NGUITools
 				{
 					Vector4 region = w.drawingDimensions;
 					box.center = new Vector3((region.x + region.z) * 0.5f, (region.y + region.w) * 0.5f);
-					box.size = new Vector3(region.z - region.x, region.w - region.y);
+					box.size = new Vector3(region.z - region.x, region.w - region.y) * multiplier;
 				}
 				else
 				{
 					Vector3[] corners = w.localCorners;
 					box.center = Vector3.Lerp(corners[0], corners[2], 0.5f);
-					box.size = corners[2] - corners[0];
+					box.size = (corners[2] - corners[0]) * multiplier;
 				}
 			}
 			else
 			{
 				Bounds b = NGUIMath.CalculateRelativeWidgetBounds(go.transform, considerInactive);
 				box.center = b.center;
-				box.size = new Vector3(b.size.x, b.size.y, 0f);
+				box.size = new Vector3(b.size.x, b.size.y, 0f) * multiplier;
 			}
 #if UNITY_EDITOR
 			NGUITools.SetDirty(box);
@@ -366,7 +366,7 @@ static public class NGUITools
 	/// Adjust the widget's collider based on the depth of the widgets, as well as the widget's dimensions.
 	/// </summary>
 
-	static public void UpdateWidgetCollider (BoxCollider2D box, bool considerInactive)
+	static public void UpdateWidgetCollider (BoxCollider2D box, bool considerInactive, float multiplier = 1f)
 	{
 		if (box != null)
 		{
@@ -377,13 +377,13 @@ static public class NGUITools
 			{
 				Vector3[] corners = w.localCorners;
 				box.offset = Vector3.Lerp(corners[0], corners[2], 0.5f);
-				box.size = corners[2] - corners[0];
+				box.size = (corners[2] - corners[0]) * multiplier;
 			}
 			else
 			{
 				Bounds b = NGUIMath.CalculateRelativeWidgetBounds(go.transform, considerInactive);
 				box.offset = b.center;
-				box.size = new Vector2(b.size.x, b.size.y);
+				box.size = new Vector2(b.size.x * multiplier, b.size.y * multiplier);
 			}
 #if UNITY_EDITOR
 			NGUITools.SetDirty(box);
