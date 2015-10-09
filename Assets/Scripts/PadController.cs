@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 [Serializable]
 public class Instrument
@@ -141,7 +142,33 @@ public class PadController : MonoBehaviour {
 
 	private float initTime;
 
-	public int score = 0;
+	[DllImport("__Internal")]
+	private static extern void _ReportAchievement( string achievementID, float progress );
+
+	private int _score = 0;
+	public int score
+	{
+		get
+		{
+			return _score;
+		}
+		set
+		{
+			_score = value;
+			string scoreAchievement = string.Empty;
+			if (_score == 42)
+				scoreAchievement = "42";
+			else if (score == 99)
+				scoreAchievement = "reach99";
+			else if (score == 420)
+				scoreAchievement = "420";
+
+			if (!string.IsNullOrEmpty(scoreAchievement))
+			{
+				_ReportAchievement(scoreAchievement, 100);
+			}
+		}
+	}
 
 	private int instrumentIndex = -1;
 	private int paletteIndex = -1;
@@ -154,15 +181,23 @@ public class PadController : MonoBehaviour {
 
 	void Start () 
 	{
-		AudioSettings.SetDSPBufferSize(128, 2);
+
+//		AudioSettings.SetDSPBufferSize(128, 2);
 		print(Social.Active);
 		Social.localUser.Authenticate(delegate(bool success) {
 			if (success) {
 				Debug.Log ("Authentication successful");
 				string userInfo = "Username: " + Social.localUser.userName + 
 					"\nUser ID: " + Social.localUser.id + 
-						"\nIsUnderage: " + Social.localUser.underage;
+						"\nIsUnderage: " + Social.localUser.underage + 
+						"\nIsAuthenticated: " + Social.localUser.authenticated;
 				Debug.Log (userInfo);
+				Social.LoadAchievementDescriptions( delegate(UnityEngine.SocialPlatforms.IAchievementDescription[] obj) {
+					if (obj == null)
+						return;
+					foreach(UnityEngine.SocialPlatforms.IAchievementDescription a in obj)
+						Debug.Log(a.id);
+				});
 			}
 			else
 				Debug.Log ("Authentication failed");
@@ -226,8 +261,13 @@ public class PadController : MonoBehaviour {
 			pads[i].OnUnfire -= OnTabUnfired;
 			pads[i].OnDie -= OnDie;
 		}
-		if (Social.localUser.authenticated)
-			Social.ReportScore(score, "Score", null);
+		Social.ReportScore(score, "Score", delegate(bool success) {
+			Debug.Log("Reported score " + score + " to leaderboard: Score, success: " + success);
+		});
+//		if (Social.localUser.authenticated)
+//		{
+//
+//		}
 		StartCoroutine(DieCoroutine());
 		playbutton.SetActive(false);
 		pausebutton.SetActive(false);
