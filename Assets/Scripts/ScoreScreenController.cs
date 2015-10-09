@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class ScoreScreenController : MonoBehaviour {
 
+	public const string BEST_SCORE_KEY = "BestScore";
+
 	private static ScoreScreenController _instance;
 	public static ScoreScreenController instance
 	{
@@ -28,6 +30,7 @@ public class ScoreScreenController : MonoBehaviour {
 	public GameObject restartButton;
 
 	private int currentScore = 0;
+	private int currentBestScore = 0;
 	private int finalScore;
 	private List<SavedNote> savedNotes;
 	
@@ -76,6 +79,12 @@ public class ScoreScreenController : MonoBehaviour {
 		bestScoreTitleLabel.color = losingColor;
 		bestScoreLabel.color = losingColor;
 
+		currentBestScore = PlayerPrefs.GetInt(BEST_SCORE_KEY, 0);
+		bestScoreLabel.text = currentBestScore.ToString();
+
+		if (score > currentBestScore)
+			PlayerPrefs.SetInt(BEST_SCORE_KEY, score);
+
 		camera.backgroundColor = bgColor;
 		
 		this.finalScore = score;
@@ -111,6 +120,8 @@ public class ScoreScreenController : MonoBehaviour {
 	void UpdateScoreLabel()
 	{
 		scoreLabel.text = currentScore.ToString();
+		currentBestScore = Mathf.Max(currentScore, currentBestScore);
+		bestScoreLabel.text = currentBestScore.ToString();
 		skipButton.SetActive(currentScore < finalScore);
 		restartButton.SetActive(currentScore == finalScore);
 	}
