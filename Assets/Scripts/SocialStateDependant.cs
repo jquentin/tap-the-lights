@@ -3,8 +3,12 @@ using System.Collections;
 
 public class SocialStateDependant : MonoBehaviour {
 
+	public GameObject target;
+
 	void Update () 
 	{
-		gameObject.SetActive(Social.localUser.authenticated);
+//		Debug.Log (Social.localUser + " ---- " + Social.localUser.authenticated);
+		if (target != null)
+			target.SetActive(Social.localUser.authenticated);
 	}
 }
