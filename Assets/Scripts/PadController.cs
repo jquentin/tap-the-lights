@@ -112,7 +112,7 @@ public class PadController : MonoBehaviour {
 		get
 		{
 			if (_camera == null)
-				_camera = NGUITools.FindCameraForLayer(gameObject.layer);
+				_camera = GetComponentInChildren<Camera>();
 			return _camera;
 		}
 	}
@@ -142,8 +142,30 @@ public class PadController : MonoBehaviour {
 
 	private float initTime;
 
+#if UNITY_IOS
+	private const string ExtraInstrumentsBundleURL = "https://dl.dropbox.com/s/m3lvmddclxirbe5/extrainstruments";
+#elif UNITY_ANDROID
+	private const string ExtraInstrumentsBundleURL = "https://dl.dropbox.com/s/ugkn14afh5bh1b4/extrainstruments";
+#else
+	private const string ExtraInstrumentsBundleURL = "https://dl.dropbox.com/s/f5tq1pifjpine7r/extrainstruments";
+#endif
+	private const string ExtraInstrumentsBundleVersionURL = "https://dl.dropbox.com/s/05psmw0wpdzp3o7/extrainstruments.version";
+
 	[DllImport("__Internal")]
 	private static extern void _ReportAchievement( string achievementID, float progress );
+
+	private class ScoreAchievement
+	{
+		public int score;
+		public string id;
+		public ScoreAchievement (int score, string id)
+		{
+			this.score = score;
+			this.id = id;
+		}
+	}
+
+	private List<ScoreAchievement> scoreAchievements = new List<ScoreAchievement>();
 
 	private int _score = 0;
 	public int score
@@ -156,12 +178,17 @@ public class PadController : MonoBehaviour {
 		{
 			_score = value;
 			string scoreAchievement = string.Empty;
-			if (_score == 42)
-				scoreAchievement = "42";
-			else if (score == 99)
-				scoreAchievement = "reach99";
-			else if (score == 420)
-				scoreAchievement = "420";
+			foreach(ScoreAchievement sa in scoreAchievements)
+			{
+				if (_score == sa.score)
+					scoreAchievement = sa.id;
+			}
+//			if (_score == 42)
+//				scoreAchievement = "42";
+//			else if (score == 99)
+//				scoreAchievement = "reach99";
+//			else if (score == 420)
+//				scoreAchievement = "420";
 
 			if (!string.IsNullOrEmpty(scoreAchievement))
 			{
@@ -179,9 +206,122 @@ public class PadController : MonoBehaviour {
 
 	private bool inTuto = false;
 
-	void Start () 
+	public void LoadExtraInstruments(AssetBundle bundle)
 	{
+		AudioClip[] extraInstrumentsClips = bundle.LoadAllAssets<AudioClip>();
+		LoadExtraInstruments(extraInstrumentsClips);
+	}
 
+	public void LoadExtraInstruments()
+	{
+		AudioClip[] extraInstrumentsClips = Resources.LoadAll<AudioClip>("ExtraInstruments");
+		LoadExtraInstruments(extraInstrumentsClips);
+	}
+	
+	public void LoadExtraInstruments(AudioClip[] clips)
+	{
+		foreach(AudioClip ac in clips)
+		{
+			LoadNewAudioClip(ac);
+		}
+		CleanInstruments();
+	}
+
+	void CleanInstruments()
+	{
+		instruments.RemoveAll(delegate(Instrument instrument) {
+			foreach (AudioClip ac in instrument.notes)
+			{
+				if (ac == null)
+				{
+					Debug.Log("Remove incomplete instrument: " + instrument.name);
+					return true;
+				}
+			}
+			return false;
+		});
+	}
+
+	void LoadNewAudioClip(AudioClip clip)
+	{
+		Debug.Log("Load extra audio clip: " + clip.name);
+		string[] fileNameSplit = clip.name.Split(new char[] {'-'}, StringSplitOptions.RemoveEmptyEntries);
+		if (fileNameSplit.Length < 2)
+			Debug.LogWarning("Non valid audio clip: " + clip.name + ". File has to be named \"<InstrumentName>-<NoteIndex>-Anything\".");
+		else
+		{
+			string instrumentName = fileNameSplit[0];
+			int noteIndex = -1;
+			if (int.TryParse(fileNameSplit[1], out noteIndex))
+			{
+				Instrument instr = instruments.Find(instrument => instrument.name == instrumentName);
+				if (instr == null)
+				{
+					instr = new Instrument();
+					instr.name = instrumentName;
+					instr.notes = new List<AudioClip>();
+					for ( int i = 0 ; i < 9 ; i++)
+						instr.notes.Add(null);
+					instruments.Add(instr);
+				}
+				
+				if (instr.notes.Count >= noteIndex)
+					instr.notes[noteIndex - 1] = clip;
+				else
+					instr.notes.Insert(noteIndex - 1, clip);
+			}
+			else
+				Debug.LogWarning("Non valid audio clip: " + clip.name + ". File has to be named \"<InstrumentName>-<NoteIndex>-Anything\".");
+		}
+	}
+	
+	float time;
+
+	void InitTimer()
+	{
+		time = Time.realtimeSinceStartup;
+	}
+
+	void LogTime(string label)
+	{
+		Debug.Log("LogTime: " + label + " - " + (Time.realtimeSinceStartup - time));
+		GoogleAnalyticsV3.getInstance().LogTiming("Statistics", (long)((Time.realtimeSinceStartup - time) * 1000f), "TimerLog", label);
+		time = Time.realtimeSinceStartup;
+	}
+
+	IEnumerator Start ()
+	{
+		InitTimer();
+		int version = 0;
+		using(WWW www = new WWW(ExtraInstrumentsBundleVersionURL)){
+			yield return www;
+			LogTime("InstrumentsVersion");
+			if (www.error != null)
+				throw new Exception("WWW download of instruments version file had an error:" + www.error);
+			else
+				Debug.Log("WWW download of instruments version file succeed");
+			version = int.Parse(www.text);
+		}
+		Debug.Log("Instrument Version = " + version);
+
+		while (!Caching.ready)
+			yield return null;
+		LogTime("Caching Ready");
+		
+		// Load the AssetBundle file from Cache if it exists with the same version or download and store it in the cache
+		using(WWW www = WWW.LoadFromCacheOrDownload (ExtraInstrumentsBundleURL, version)){
+			yield return www;
+			if (www.error != null)
+				throw new Exception("WWW download of instruments had an error:" + www.error);
+			else
+				Debug.Log("WWW download of instruments succeed");
+			LogTime("Instruments");
+			AssetBundle bundle = www.assetBundle;
+			PadController.instance.LoadExtraInstruments(bundle);
+			LoadExtraInstruments(bundle);
+			bundle.Unload(false);
+			LogTime("Instruments processing");
+		}
 //		AudioSettings.SetDSPBufferSize(128, 2);
 		print(Social.Active);
 		Social.localUser.Authenticate(delegate(bool success) {
@@ -196,13 +336,25 @@ public class PadController : MonoBehaviour {
 					if (obj == null)
 						return;
 					foreach(UnityEngine.SocialPlatforms.IAchievementDescription a in obj)
-						Debug.Log(a.id);
+					{
+						string scoreString = a.id.ToLower().Replace("reach", "");
+						int score = -1;
+						if (int.TryParse(scoreString, out score))
+						{
+							ScoreAchievement sa = new ScoreAchievement(score, a.id);
+							scoreAchievements.Add(sa);
+							Debug.Log ("Reach " + sa.score + " to unlock achievement: " + sa.id);
+						}
+					}
+					LogTime("Social");
 				});
 			}
 			else
 				Debug.Log ("Authentication failed");
 		});
 		Init();
+		yield return new WaitForSeconds(0.1f);
+		LoadingScreen.instance.Hide();
 	}
 
 	public void Init()
