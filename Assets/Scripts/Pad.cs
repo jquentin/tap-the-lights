@@ -105,6 +105,11 @@ public class Pad : MonoBehaviour {
 			OnDie();
 	}
 
+	public void PreInit()
+	{
+		texture.color = colorPalette.GetRandomColor();
+	}
+
 	public void Init()
 	{
 		CancelInvoke();

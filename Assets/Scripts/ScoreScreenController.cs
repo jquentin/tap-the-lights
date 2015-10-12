@@ -28,6 +28,8 @@ public class ScoreScreenController : MonoBehaviour {
 
 	public GameObject skipButton;
 	public GameObject restartButton;
+	
+	public GameObject contentContainer;
 
 	private int currentScore = 0;
 	private int currentBestScore = 0;
@@ -60,7 +62,7 @@ public class ScoreScreenController : MonoBehaviour {
 
 	void Start()
 	{
-		UpdateViewport(0f);
+//		UpdateViewport(0f);
 //		camera.rect = new Rect(0f, -1f, 0f, 1f);
 	}
 
@@ -73,11 +75,12 @@ public class ScoreScreenController : MonoBehaviour {
 
 	public void Play (int score, List<SavedNote> savedNotes, Color losingColor, Color bgColor) 
 	{
-		
+		contentContainer.SetActive(true);
 		scoreTitleLabel.color = losingColor;
 		scoreLabel.color = losingColor;
 		bestScoreTitleLabel.color = losingColor;
 		bestScoreLabel.color = losingColor;
+		hasPunchedBestLabel = false;
 
 		currentBestScore = PlayerPrefs.GetInt(BEST_SCORE_KEY, 0);
 		bestScoreLabel.text = currentBestScore.ToString();
@@ -99,6 +102,12 @@ public class ScoreScreenController : MonoBehaviour {
 		Launch(0.5f);
 	}
 
+	public void ShowBlankMode () 
+	{
+		contentContainer.SetActive(false);
+		UpdateViewport(1f);
+	}
+
 	void Launch(float delay = 0f)
 	{
 //		float[] data = new float[1024];
@@ -117,23 +126,44 @@ public class ScoreScreenController : MonoBehaviour {
 		UpdateScoreLabel();
 	}
 
+	bool hasPunchedBestLabel = false;
+	void PunchBestLabel()
+	{
+		if (hasPunchedBestLabel)
+			return;
+		iTween.PunchScale(bestScoreTitleLabel.gameObject, iTween.Hash(
+			"amount", Vector3.one * 0.3f,
+			"time", 1.2f));
+		hasPunchedBestLabel = true;
+	}
+
 	void UpdateScoreLabel()
 	{
 		scoreLabel.text = currentScore.ToString();
-		currentBestScore = Mathf.Max(currentScore, currentBestScore);
+		if (currentScore > currentBestScore)
+		{
+			currentBestScore = currentScore;
+			PunchBestLabel();
+		}
 		bestScoreLabel.text = currentBestScore.ToString();
 		skipButton.SetActive(currentScore < finalScore);
 		restartButton.SetActive(currentScore == finalScore);
 	}
-
+	
 	public void BackToGame()
+	{
+		BackToGameWithTime(float.NaN);
+	}
+
+	public void BackToGameWithTime(float transitionTimeOverride, bool alreadyInited = false)
 	{
 		iTween.ValueTo(gameObject, iTween.Hash(
 			"from", 1f,
 			"to", 0f,
-			"time", transitionTime,
+			"time", float.IsNaN(transitionTimeOverride) ? transitionTime : transitionTimeOverride,
 			"onupdate", "UpdateViewport"));
-		PadController.instance.Init ();
+		if (!alreadyInited)
+			PadController.instance.Init ();
 	}
 
 	public void Skip()

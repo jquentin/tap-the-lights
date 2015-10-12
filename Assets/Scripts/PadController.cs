@@ -284,32 +284,35 @@ public class PadController : MonoBehaviour {
 
 	void LogTime(string label)
 	{
-		Debug.Log("LogTime: " + label + " - " + (Time.realtimeSinceStartup - time));
+		Debug.Log("LogTime: " + label + " : " + (Time.realtimeSinceStartup - time));
 		GoogleAnalyticsV3.getInstance().LogTiming("Statistics", (long)((Time.realtimeSinceStartup - time) * 1000f), "TimerLog", label);
 		time = Time.realtimeSinceStartup;
 	}
 
+	int _oldVersion = int.MinValue;
+	int oldVersion
+	{
+		get
+		{
+			if (_oldVersion == int.MinValue)
+				_oldVersion = PlayerPrefs.GetInt("InstrumentBundleVersion", 0);
+			return _oldVersion;
+		}
+		set
+		{
+			PlayerPrefs.SetInt("InstrumentBundleVersion", value);
+		}
+	}
+
 	IEnumerator Start ()
 	{
+		ScoreScreenController.instance.ShowBlankMode();
 		InitTimer();
-		int version = 0;
-		using(WWW www = new WWW(ExtraInstrumentsBundleVersionURL)){
-			yield return www;
-			LogTime("InstrumentsVersion");
-			if (www.error != null)
-				throw new Exception("WWW download of instruments version file had an error:" + www.error);
-			else
-				Debug.Log("WWW download of instruments version file succeed");
-			version = int.Parse(www.text);
-		}
-		Debug.Log("Instrument Version = " + version);
-
 		while (!Caching.ready)
 			yield return null;
 		LogTime("Caching Ready");
-		
 		// Load the AssetBundle file from Cache if it exists with the same version or download and store it in the cache
-		using(WWW www = WWW.LoadFromCacheOrDownload (ExtraInstrumentsBundleURL, version)){
+		using(WWW www = WWW.LoadFromCacheOrDownload (ExtraInstrumentsBundleURL, oldVersion)){
 			yield return www;
 			if (www.error != null)
 				throw new Exception("WWW download of instruments had an error:" + www.error);
@@ -322,6 +325,8 @@ public class PadController : MonoBehaviour {
 			bundle.Unload(false);
 			LogTime("Instruments processing");
 		}
+
+
 //		AudioSettings.SetDSPBufferSize(128, 2);
 		print(Social.Active);
 		Social.localUser.Authenticate(delegate(bool success) {
@@ -353,8 +358,38 @@ public class PadController : MonoBehaviour {
 				Debug.Log ("Authentication failed");
 		});
 		Init();
-		yield return new WaitForSeconds(0.1f);
-		LoadingScreen.instance.Hide();
+//		LoadingScreen.instance.Hide();
+		ScoreScreenController.instance.BackToGameWithTime(0.8f, true);
+		int latestVersion = 0;
+		using(WWW www = new WWW(ExtraInstrumentsBundleVersionURL)){
+			yield return www;
+			LogTime("InstrumentsVersion");
+			if (www.error != null)
+				throw new Exception("WWW download of instruments version file had an error:" + www.error);
+			else
+				Debug.Log("WWW download of instruments version file succeed");
+			latestVersion = int.Parse(www.text);
+		}
+		Debug.Log("Instrument Version = " + latestVersion);
+
+		if (latestVersion > oldVersion)
+		{
+			// Load the AssetBundle file from Cache if it exists with the same version or download and store it in the cache
+			using(WWW www = WWW.LoadFromCacheOrDownload (ExtraInstrumentsBundleURL, latestVersion)){
+				yield return www;
+				if (www.error != null)
+					throw new Exception("WWW download of instruments had an error:" + www.error);
+				else
+					Debug.Log("WWW download of instruments succeed");
+				LogTime("Instruments");
+				AssetBundle bundle = www.assetBundle;
+				PadController.instance.LoadExtraInstruments(bundle);
+				LoadExtraInstruments(bundle);
+				bundle.Unload(false);
+				LogTime("Instruments processing");
+			}
+			oldVersion = latestVersion;
+		}
 	}
 
 	public void Init()
