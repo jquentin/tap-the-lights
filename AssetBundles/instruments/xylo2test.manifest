@@ -1,0 +1,24 @@
+ManifestFileVersion: 0
+CRC: 1463058895
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 67c43cebded2c6a8737e8a4340a050b0
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: c516f2a3b2b6b67ef759f6410a790acd
+HashAppended: 0
+ClassTypes:
+- Class: 83
+  Script: {instanceID: 0}
+Assets:
+- Assets/Resources/ExtraInstruments/Xylo 2 test/Test-8-e3.wav
+- Assets/Resources/ExtraInstruments/Xylo 2 test/Test-6-c3.wav
+- Assets/Resources/ExtraInstruments/Xylo 2 test/Test-4-g2.wav
+- Assets/Resources/ExtraInstruments/Xylo 2 test/Test-3-e2.wav
+- Assets/Resources/ExtraInstruments/Xylo 2 test/Test-1-c2.wav
+- Assets/Resources/ExtraInstruments/Xylo 2 test/Test-2-d2.wav
+- Assets/Resources/ExtraInstruments/Xylo 2 test/Test-7-d3.wav
+- Assets/Resources/ExtraInstruments/Xylo 2 test/Test-9-g3.wav
+- Assets/Resources/ExtraInstruments/Xylo 2 test/Test-5-a2.wav
+Dependencies: []
