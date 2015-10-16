@@ -123,7 +123,7 @@ public class Pad : MonoBehaviour {
 
 	void PlanNextColorChange()
 	{
-		Invoke("ChangeColor", UnityEngine.Random.Range(2f, 6f));
+		Invoke("ChangeColor", UnityEngine.Random.Range(4f, 8f));
 	}
 
 	void ChangeColor()
@@ -131,7 +131,7 @@ public class Pad : MonoBehaviour {
 		iTween.ValueTo(gameObject, iTween.Hash(
 			"from", texture.color,
 			"to", colorPalette.GetRandomColor(),
-			"time", UnityEngine.Random.Range(2f, 6f),
+			"time", UnityEngine.Random.Range(4f, 8f),
 			"onupdate", "UpdateColor",
 			"oncomplete", "PlanNextColorChange"));
 	}
