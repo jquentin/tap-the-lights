@@ -143,13 +143,13 @@ public class PadController : MonoBehaviour {
 	private float initTime;
 
 #if UNITY_IOS
-	private const string ExtraInstrumentsBundleURL = "https://dl.dropbox.com/s/m3lvmddclxirbe5/extrainstruments";
+	private const string ExtraInstrumentsBundleURL = "https://www.jeremyquentin.fr/TapTheLights/data/AssetBundles/iOS/extrainstruments";
 #elif UNITY_ANDROID
-	private const string ExtraInstrumentsBundleURL = "https://dl.dropbox.com/s/ugkn14afh5bh1b4/extrainstruments";
+	private const string ExtraInstrumentsBundleURL = "https://www.jeremyquentin.fr/TapTheLights/data/AssetBundles/Android/extrainstruments";
 #else
-	private const string ExtraInstrumentsBundleURL = "https://dl.dropbox.com/s/f5tq1pifjpine7r/extrainstruments";
+	private const string ExtraInstrumentsBundleURL = "https://www.jeremyquentin.fr/TapTheLights/data/AssetBundles/Other/extrainstruments";
 #endif
-	private const string ExtraInstrumentsBundleVersionURL = "https://dl.dropbox.com/s/05psmw0wpdzp3o7/extrainstruments.version";
+	private const string ExtraInstrumentsBundleVersionURL = "https://www.jeremyquentin.fr/TapTheLights/data/AssetBundles/extrainstruments.version";
 
 	[DllImport("__Internal")]
 	private static extern void _ReportAchievement( string achievementID, float progress );
@@ -381,7 +381,7 @@ public class PadController : MonoBehaviour {
 					throw new Exception("WWW download of instruments had an error:" + www.error);
 				else
 					Debug.Log("WWW download of instruments succeed");
-				LogTime("Instruments");
+				LogTime("NonCachedInstruments");
 				AssetBundle bundle = www.assetBundle;
 				PadController.instance.LoadExtraInstruments(bundle);
 				LoadExtraInstruments(bundle);
