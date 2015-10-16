@@ -29,10 +29,10 @@ public class FacebookManager : MonoBehaviour {
 		{
 			Debug.Log("onShareClicked");
 			FB.Feed(
-				linkCaption: "I reached " + highScore.ToString() + " points! Can you beat it?",
-//				picture: "http://a5.mzstatic.com/us/r30/Purple5/v4/a0/ae/53/a0ae53ae-248b-b38c-04f1-60be74ebd360/screen568x568.jpeg",
-				linkName: "Check out Tap the Lights on iOS and Android!",
-				link: "https://itunes.apple.com/app/apple-store/id972420360?pt=94349800&ct=InAppFacebookPosts&mt=8"
+				linkCaption: "Check out Tap the Lights on iOS and Android!",
+				picture: "https://www.jeremyquentin.fr/TapTheLights/data/FBShareImage.png",
+				linkName: "I reached " + highScore.ToString() + " points! Can you beat it?",
+				link: "https://www.jeremyquentin.fr/TapTheLights/FB"
 				);
 		}
 	}
