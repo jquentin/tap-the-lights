@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3328521725
+CRC: 3298448140
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: ac6c9fc65aa9bf980c212f33c5b506f3
+    Hash: 2469c5867f1273fc985719161dc533dd
   TypeTreeHash:
     serializedVersion: 2
     Hash: c516f2a3b2b6b67ef759f6410a790acd
@@ -12,13 +12,13 @@ ClassTypes:
 - Class: 83
   Script: {instanceID: 0}
 Assets:
-- Assets/ExtraInstruments/Xylo test/Test2-8-e3.wav
-- Assets/ExtraInstruments/Xylo test/Test2-6-c3.wav
-- Assets/ExtraInstruments/Xylo test/Test2-4-g2.wav
-- Assets/ExtraInstruments/Xylo test/Test2-3-e2.wav
-- Assets/ExtraInstruments/Xylo test/Test2-1-c2.wav
-- Assets/ExtraInstruments/Xylo test/Test2-2-d2.wav
-- Assets/ExtraInstruments/Xylo test/Test2-7-d3.wav
-- Assets/ExtraInstruments/Xylo test/Test2-9-g3.wav
-- Assets/ExtraInstruments/Xylo test/Test2-5-a2.wav
+- Assets/ExtraInstruments/Vibraphone/Vibraphone-9-G5.wav
+- Assets/ExtraInstruments/Vibraphone/Vibraphone-1-C4.wav
+- Assets/ExtraInstruments/Vibraphone/Vibraphone-6-C5.wav
+- Assets/ExtraInstruments/Vibraphone/Vibraphone-4-G4.wav
+- Assets/ExtraInstruments/Vibraphone/Vibraphone-5-A4.wav
+- Assets/ExtraInstruments/Vibraphone/Vibraphone-7-D5.wav
+- Assets/ExtraInstruments/Vibraphone/Vibraphone-2-D4.wav
+- Assets/ExtraInstruments/Vibraphone/Vibraphone-3-E4.wav
+- Assets/ExtraInstruments/Vibraphone/Vibraphone-8-E5.wav
 Dependencies: []

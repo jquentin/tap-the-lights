@@ -5,4 +5,6 @@
 
 -(void)ReportAchievement : (NSString*)achievementID : (float) progress;
 
+-(void)ResetAchievements;
+
 @end

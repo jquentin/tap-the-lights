@@ -27,20 +27,20 @@ public class ColorPalette
 	public void InitFromHex()
 	{
 		padColors = new List<Color>();
-#if UNITY_5_2
+		#if UNITY_5_2
 		ColorUtility.TryParseHtmlString(hex, out bgColor);
-#else
+		#else
 		Color.TryParseHexString(hex, out bgColor);
-#endif
+		#endif
 		for (int i= 0 ; i < padHexs.Count ; i++)
 		{
 			padColors.Add(new Color());
 			Color padColor = padColors[i];
-#if UNITY_5_2
+			#if UNITY_5_2
 			ColorUtility.TryParseHtmlString(padHexs[i], out padColor);
-#else
+			#else
 			Color.TryParseHexString(padHexs[i], out padColor);
-#endif
+			#endif
 			padColors[i] = padColor;
 		}
 	}
@@ -68,7 +68,7 @@ public class SavedNote
 }
 
 public class PadController : MonoBehaviour {
-
+	
 	
 	private static PadController _instance;
 	public static PadController instance
@@ -104,7 +104,7 @@ public class PadController : MonoBehaviour {
 			return _listener;
 		}
 	}
-
+	
 	
 	private Camera _camera;
 	private Camera camera
@@ -116,22 +116,22 @@ public class PadController : MonoBehaviour {
 			return _camera;
 		}
 	}
-
+	
 	public List<Pad> pads;
 	public List<Instrument> instruments;
 	public List<ColorPalette> palettes;
 	public List<DifficultyLevel> levels;
 	public UILabel scoreLabel;
 	public UITexture overlay;
-
+	
 	public GameObject pausebutton;
 	public GameObject playbutton;
-
+	
 	private List<SavedNote> savedNotes = new List<SavedNote>();
-
+	
 	public float delay = 2f;
 	private float lastFire;
-
+	
 	private float probDouble = 0f;
 	private float probTriple = 0f;
 	public float speedMultiplier
@@ -139,21 +139,21 @@ public class PadController : MonoBehaviour {
 		get;
 		private set;
 	}
-
+	
 	private float initTime;
-
-#if UNITY_IOS
-	private const string ExtraInstrumentsBundleURL = "https://www.jeremyquentin.fr/TapTheLights/data/AssetBundles/iOS/extrainstruments";
-#elif UNITY_ANDROID
-	private const string ExtraInstrumentsBundleURL = "https://www.jeremyquentin.fr/TapTheLights/data/AssetBundles/Android/extrainstruments";
-#else
-	private const string ExtraInstrumentsBundleURL = "https://www.jeremyquentin.fr/TapTheLights/data/AssetBundles/Other/extrainstruments";
-#endif
-	private const string ExtraInstrumentsBundleVersionURL = "https://www.jeremyquentin.fr/TapTheLights/data/AssetBundles/extrainstruments.version";
-
+	
+	#if UNITY_IOS
+	private const string ExtraInstrumentsBundleURL = "https://dl.dropbox.com/s/m3lvmddclxirbe5/extrainstruments";
+	#elif UNITY_ANDROID
+	private const string ExtraInstrumentsBundleURL = "https://dl.dropbox.com/s/ugkn14afh5bh1b4/extrainstruments";
+	#else
+	private const string ExtraInstrumentsBundleURL = "https://dl.dropbox.com/s/f5tq1pifjpine7r/extrainstruments";
+	#endif
+	private const string ExtraInstrumentsBundleVersionURL = "https://dl.dropbox.com/s/05psmw0wpdzp3o7/extrainstruments.version";
+	
 	[DllImport("__Internal")]
 	private static extern void _ReportAchievement( string achievementID, float progress );
-
+	
 	private class ScoreAchievement
 	{
 		public int score;
@@ -164,9 +164,9 @@ public class PadController : MonoBehaviour {
 			this.id = id;
 		}
 	}
-
+	
 	private List<ScoreAchievement> scoreAchievements = new List<ScoreAchievement>();
-
+	
 	private int _score = 0;
 	public int score
 	{
@@ -183,35 +183,35 @@ public class PadController : MonoBehaviour {
 				if (_score == sa.score)
 					scoreAchievement = sa.id;
 			}
-//			if (_score == 42)
-//				scoreAchievement = "42";
-//			else if (score == 99)
-//				scoreAchievement = "reach99";
-//			else if (score == 420)
-//				scoreAchievement = "420";
-
+			//			if (_score == 42)
+			//				scoreAchievement = "42";
+			//			else if (score == 99)
+			//				scoreAchievement = "reach99";
+			//			else if (score == 420)
+			//				scoreAchievement = "420";
+			
 			if (!string.IsNullOrEmpty(scoreAchievement))
 			{
 				_ReportAchievement(scoreAchievement, 100);
 			}
 		}
 	}
-
+	
 	private int instrumentIndex = -1;
 	private int paletteIndex = -1;
 	
 	private int lastPadFired;
-
+	
 	private bool halfTime = false;
-
+	
 	private bool inTuto = false;
-
+	
 	public void LoadExtraInstruments(AssetBundle bundle)
 	{
 		AudioClip[] extraInstrumentsClips = bundle.LoadAllAssets<AudioClip>();
 		LoadExtraInstruments(extraInstrumentsClips);
 	}
-
+	
 	public void LoadExtraInstruments()
 	{
 		AudioClip[] extraInstrumentsClips = Resources.LoadAll<AudioClip>("ExtraInstruments");
@@ -226,7 +226,7 @@ public class PadController : MonoBehaviour {
 		}
 		CleanInstruments();
 	}
-
+	
 	void CleanInstruments()
 	{
 		instruments.RemoveAll(delegate(Instrument instrument) {
@@ -241,7 +241,7 @@ public class PadController : MonoBehaviour {
 			return false;
 		});
 	}
-
+	
 	void LoadNewAudioClip(AudioClip clip)
 	{
 		Debug.Log("Load extra audio clip: " + clip.name);
@@ -276,19 +276,19 @@ public class PadController : MonoBehaviour {
 	}
 	
 	float time;
-
+	
 	void InitTimer()
 	{
 		time = Time.realtimeSinceStartup;
 	}
-
+	
 	void LogTime(string label)
 	{
 		Debug.Log("LogTime: " + label + " : " + (Time.realtimeSinceStartup - time));
 		GoogleAnalyticsV3.getInstance().LogTiming("Statistics", (long)((Time.realtimeSinceStartup - time) * 1000f), "TimerLog", label);
 		time = Time.realtimeSinceStartup;
 	}
-
+	
 	int _oldVersion = int.MinValue;
 	int oldVersion
 	{
@@ -303,7 +303,7 @@ public class PadController : MonoBehaviour {
 			PlayerPrefs.SetInt("InstrumentBundleVersion", value);
 		}
 	}
-
+	
 	IEnumerator Start ()
 	{
 		ScoreScreenController.instance.ShowBlankMode();
@@ -325,9 +325,9 @@ public class PadController : MonoBehaviour {
 			bundle.Unload(false);
 			LogTime("Instruments processing");
 		}
-
-
-//		AudioSettings.SetDSPBufferSize(128, 2);
+		
+		
+		//		AudioSettings.SetDSPBufferSize(128, 2);
 		print(Social.Active);
 		Social.localUser.Authenticate(delegate(bool success) {
 			if (success) {
@@ -358,7 +358,7 @@ public class PadController : MonoBehaviour {
 				Debug.Log ("Authentication failed");
 		});
 		Init();
-//		LoadingScreen.instance.Hide();
+		//		LoadingScreen.instance.Hide();
 		ScoreScreenController.instance.BackToGameWithTime(0.8f, true);
 		int latestVersion = 0;
 		using(WWW www = new WWW(ExtraInstrumentsBundleVersionURL)){
@@ -371,7 +371,7 @@ public class PadController : MonoBehaviour {
 			latestVersion = int.Parse(www.text);
 		}
 		Debug.Log("Instrument Version = " + latestVersion);
-
+		
 		if (latestVersion > oldVersion)
 		{
 			// Load the AssetBundle file from Cache if it exists with the same version or download and store it in the cache
@@ -391,7 +391,7 @@ public class PadController : MonoBehaviour {
 			oldVersion = latestVersion;
 		}
 	}
-
+	
 	public void Init()
 	{
 		this.enabled = true;
@@ -420,7 +420,7 @@ public class PadController : MonoBehaviour {
 		pausebutton.SetActive(false);
 	}
 	
-
+	
 	void Update () 
 	{
 		scoreLabel.text = score.ToString();
@@ -429,7 +429,7 @@ public class PadController : MonoBehaviour {
 			Fire();
 		}
 	}
-
+	
 	void OnTabUnfired(int index)
 	{
 		pausebutton.SetActive(true);
@@ -438,9 +438,9 @@ public class PadController : MonoBehaviour {
 		UpdateDifficulty();
 		savedNotes.Add(new SavedNote(Time.time - initTime, instruments[instrumentIndex].notes[index]));
 	}
-
+	
 	public Color deadColor;
-
+	
 	void OnDie()
 	{
 		for (int i = 0 ; i < 9 ; i++)
@@ -451,16 +451,16 @@ public class PadController : MonoBehaviour {
 		Social.ReportScore(score, "Score", delegate(bool success) {
 			Debug.Log("Reported score " + score + " to leaderboard: Score, success: " + success);
 		});
-//		if (Social.localUser.authenticated)
-//		{
-//
-//		}
+		//		if (Social.localUser.authenticated)
+		//		{
+		//
+		//		}
 		StartCoroutine(DieCoroutine());
 		playbutton.SetActive(false);
 		pausebutton.SetActive(false);
 		this.enabled = false;
 	}
-
+	
 	IEnumerator DieCoroutine()
 	{
 		for ( int i = instruments[instrumentIndex].notes.Count - 1 ; i >= 0 ; i--)
@@ -470,12 +470,12 @@ public class PadController : MonoBehaviour {
 		}
 		ShowScoreScreen();
 	}
-
+	
 	void ShowScoreScreen()
 	{
 		ScoreScreenController.instance.Play(score, savedNotes, palettes[paletteIndex].padColors[0], palettes[paletteIndex].bgColor);
 	}
-
+	
 	void UpdateDifficulty()
 	{
 		foreach (DifficultyLevel level in levels)
@@ -489,7 +489,7 @@ public class PadController : MonoBehaviour {
 			}
 		}
 	}
-
+	
 	void Fire()
 	{
 		float rand = UnityEngine.Random.Range(0f, 100f);
@@ -543,7 +543,7 @@ public class PadController : MonoBehaviour {
 				pads[padToFire2].SetAboveOverlay();
 		}
 	}
-
+	
 	void TriggerTuto()
 	{
 		if (!inTuto)
@@ -555,7 +555,7 @@ public class PadController : MonoBehaviour {
 			overlay.GetOrAddComponent<AlphaTweenable>().TweenAlpha(0.6f, 8f, 0f, iTween.EaseType.linear);
 		}
 	}
-
+	
 	void UntriggerTuto()
 	{
 		if (inTuto)
@@ -570,7 +570,7 @@ public class PadController : MonoBehaviour {
 			inTuto = false;
 		}
 	}
-
+	
 	public void PauseGame()
 	{
 		CancelInvoke("SetBackTimeScale");
@@ -587,7 +587,7 @@ public class PadController : MonoBehaviour {
 		pausebutton.SetActive(true);
 		Time.timeScale = 1f;
 	}
-
+	
 	[ContextMenu("Initialize colors")]
 	public void InitColors()
 	{
